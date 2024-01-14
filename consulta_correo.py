@@ -24,7 +24,7 @@ imap.login(username, password)
 status, mensajes = imap.select("INBOX")
 # print(mensajes)
 # mensajes a recibir
-N = 2
+N = 15
 # cantidad total de correos
 mensajes = int(mensajes[0])
 
