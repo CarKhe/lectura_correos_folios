@@ -1,5 +1,10 @@
 import re
-from oxxos import *
+
+
+def confirmar_correo(from_):
+    patron = r"<([a-zA-Z0-9.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    correo_deseado = re.findall(patron,from_)
+    return correo_deseado[0]
 
 def buscar_varias_expresiones(cadena,*patrones):
     for patron in patrones:
@@ -25,7 +30,7 @@ def mostrar_prioridad(text):
         for val in valores:
             if (val == "BAJA") | (val == "MEDIA") | (val == "ALTA"):
                 return val
-                break
+        return None
     except:
         return False
 
@@ -64,7 +69,8 @@ def lista_datos_folio(text,*patrones):
         except:
             lista.append(False)
     prioridad = mostrar_prioridad(text)
-    lista.append(prioridad)
+    if prioridad != None:
+        lista.append(prioridad)
     return lista
 
 def mostrar_info_folio(folio,tipo):
@@ -72,17 +78,17 @@ def mostrar_info_folio(folio,tipo):
     if tipo == "Abierto":
         ti = es_folio_ti(folio)
         if ti:
-            print("Folio TI")
+            
             lista = lista_datos_folio(folio,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([A-Z\ ]{1,})\ S",
             r": ([\w\  >°-]{1,}) \s?Equ",r"Equipo: ([\w ]{1,}).")
             print(lista)
         else:
-            print("Folio Normal")
+            
             lista = lista_datos_folio(folio,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([\w\ ]{1,})\ ?\s?",
             r"Categoria: ([\w\ ]{1,}).?\ ?\s?",r"E?e?speci?í?fica: ([\w\ ,]{1,})\ ?\s?",r"Motivo: ([\w\ ,/]{1,})\s?\s?Representante")
             print(lista)
     else:
-        print("Folio Cierre")
+        
         lista = lista_datos_folio(folio,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([\w\ ]{1,})\ ?\s?",r"Categoria: ([\w\ ]{1,}).?\ ?\s?",
             r"E?e?speci?í?fica: ([\w\ ,]{1,})\ ?\s?",r"Motivo: ([\w\ ,/]{1,})\s?\s?Representante")
         print(lista)
