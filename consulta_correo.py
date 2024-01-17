@@ -1,18 +1,13 @@
 import imaplib
 import email
 from email.header import decode_header
-from dotenv import load_dotenv
-import os
 from datos import *
 
 
-load_dotenv()
 
-# Datos del usuario
-username = "carkhe29@gmail.com"
-password = os.getenv("PASSWORD")
 
 def revisar_correo(username, password,correo_enviado):
+    datos_completos = []
     # Crear conexión
     imap = imaplib.IMAP4_SSL("imap.gmail.com")
     # iniciar sesión
@@ -21,7 +16,7 @@ def revisar_correo(username, password,correo_enviado):
     N = 15
     # cantidad total de correos
     mensajes = int(mensajes[0])
-
+    
     for i in range(mensajes, mensajes - N, -1):
         try:
             res, mensaje = imap.fetch(str(i), "(RFC822)")
@@ -31,14 +26,16 @@ def revisar_correo(username, password,correo_enviado):
             if isinstance(respuesta, tuple):
                 # Obtener el contenido
                 mensaje = email.message_from_bytes(respuesta[1])
+                
                 # decodificar el contenido
                 subject = decode_header(mensaje["Subject"])[0][0]
+                fecha = decode_header(mensaje["date"])[0][0]
                 if isinstance(subject, bytes):
                     # convertir a string
                     subject = subject.decode()
                 # de donde viene el correo
                 from_ = mensaje.get("From")
-                tipo, res = folio_abierto_cerrado(subject)
+                res = folio_abierto_cerrado(subject)
                 correo_deseado  = confirmar_correo(from_)
                 if bool(correo_deseado == correo_enviado) & (res):
                     if mensaje.is_multipart():
@@ -54,8 +51,8 @@ def revisar_correo(username, password,correo_enviado):
                                 pass
                             if content_type == "text/plain" and "attachment" not in content_disposition:
                                 # Mostrar el cuerpo del correo
-                                mostrar_info_folio(body,tipo)
-                                print("\n") 
+                                datos = mostrar_info_folio(body,res,fecha)
+                                datos_completos.append(datos)
                     else:
                         # contenido del mensaje
                         content_type = mensaje.get_content_type()
@@ -64,9 +61,9 @@ def revisar_correo(username, password,correo_enviado):
                         if content_type == "text/plain":
         #                     # mostrar solo el texto
                             print(body)
-                                    
+                                   
     imap.close()
     imap.logout()
-    
+    return datos_completos 
 
-revisar_correo(username, password,"carloskiller177@gmail.com")
+

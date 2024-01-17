@@ -13,6 +13,13 @@ def buscar_varias_expresiones(cadena,*patrones):
         else: return False
     return True
 
+def buscar_varias_expresiones_or(cadena,*patrones):
+    for patron in patrones:
+        r= mostrar_sin_ref(cadena,patron)
+        if r: break
+        else: return False
+    return True
+
 def mostrar_sin_ref(text,patron):
     try:
         val = re.findall(patron,text)
@@ -48,47 +55,56 @@ def es_folio_ti(text):
 def folio_abierto_cerrado(subject):
     res = buscar_varias_expresiones(subject,r"(Abierto)",r"[0-9]{8}")
     if res:
-        return "Abierto",True
+        return True
     else:
-        res = buscar_varias_expresiones(subject,r"(Cierre)",r"[0-9]{8}")
-        if res:
-            return "Cerrado",True
-    return False,False      
+        return False    
 
 def quitar_doble_espacio(folio):
     patron = r"(\s{2})"
     folio = re.sub(patron,' ',folio)
     return folio  
 
-def lista_datos_folio(text,*patrones):
+def lista_datos_folio(text,fecha,categoria,*patrones):
     lista = []
+    lista.append(fecha)
+    prioridad = mostrar_prioridad(text)
+    if prioridad != None:
+        lista.append(prioridad)
+    if categoria:
+        lista.append(categoria)
     for patron in patrones:
         try:
             val = re.findall(patron,text)
             lista.append(val[0])
         except:
             lista.append(False)
-    prioridad = mostrar_prioridad(text)
-    if prioridad != None:
-        lista.append(prioridad)
     return lista
 
-def mostrar_info_folio(folio,tipo):
+def categoria_ti(folio):
+    
+    if mostrar_sin_ref(folio,r": (Conserva)"):
+        return "Cuarto Frio"
+    if mostrar_sin_ref(folio,r": (Hielo)"):
+        return "Cuarto Hielo"
+    if mostrar_sin_ref(folio,r"(promedio)"):
+        return "Aire Acondicionado"
+
+def mostrar_info_folio(folio,tipo,fecha):
     folio = quitar_doble_espacio(folio)
-    if tipo == "Abierto":
+    if tipo:
         ti = es_folio_ti(folio)
         if ti:
-            
-            lista = lista_datos_folio(folio,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([A-Z\ ]{1,})\ S",
-            r": ([\w\  >°-]{1,}) \s?Equ",r"Equipo: ([\w ]{1,}).")
-            print(lista)
+            categoria= categoria_ti(folio)
+            lista = lista_datos_folio(folio,fecha,categoria,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([A-Z\ ]{1,})\ S",
+            r"Situación: ([\w\  .>°-]{1,}) Equipo",r"Equipo: ([\w ]{1,}).")
+            lista = tuple(lista)
+            return lista
         else:
-            
-            lista = lista_datos_folio(folio,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([\w\ ]{1,})\ ?\s?",
-            r"Categoria: ([\w\ ]{1,}).?\ ?\s?",r"E?e?speci?í?fica: ([\w\ ,]{1,})\ ?\s?",r"Motivo: ([\w\ ,/]{1,})\s?\s?Representante")
-            print(lista)
-    else:
-        
-        lista = lista_datos_folio(folio,r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS",r"reporta:\ ([\w\ ]{1,})\ ?\s?",r"Categoria: ([\w\ ]{1,}).?\ ?\s?",
-            r"E?e?speci?í?fica: ([\w\ ,]{1,})\ ?\s?",r"Motivo: ([\w\ ,/]{1,})\s?\s?Representante")
-        print(lista)
+            categoria = False
+            lista = lista_datos_folio(folio,fecha,categoria,r"Categoria: ([\w\ ]{1,})[.]? [(Falla)]?",r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS"
+            ,r"reporta:\ ([\w\ ]{1,}) Motivo",r"E?e?speci?í?fica: ([\w\ ,]{1,})\ ?\s?",r"Motivo: ([\w\ ,/]{1,})\s?\s?Representante")
+            lista = tuple(lista)
+            return lista
+
+    
+    
