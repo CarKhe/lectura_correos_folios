@@ -24,11 +24,17 @@ class MysqlConnection:
         return data
     
     def search_all_by_condition(self, table,condition):
-        cur = self.cnn.cursor()
-        cur.execute("SELECT * FROM {} WHERE {}".format(table,condition))
-        datos = cur.fetchone()
-        cur.close()    
-        return datos
+        try:
+            cur = self.cnn.cursor()
+            cur.execute("SELECT * FROM {} WHERE {}".format(table,condition))
+            datos = cur.fetchone()
+            cur.close() 
+            if datos is None:
+                return False
+            else:   
+                return datos
+        except:
+            return False
     
     def search_select_columns(self, table,condition,*columns):
         cur = self.cnn.cursor()

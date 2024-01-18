@@ -85,7 +85,7 @@ def categoria_ti(folio):
     if mostrar_sin_ref(folio,r": (Conserva)"):
         return "Cuarto Frio"
     if mostrar_sin_ref(folio,r": (Hielo)"):
-        return "Cuarto Hielo"
+        return "CUARTO FRÍO DE HIELO"
     if mostrar_sin_ref(folio,r"(promedio)"):
         return "Aire Acondicionado"
 
@@ -101,7 +101,7 @@ def mostrar_info_folio(folio,tipo,fecha):
             return lista
         else:
             categoria = False
-            lista = lista_datos_folio(folio,fecha,categoria,r"Categoria: ([\w\ ]{1,})[.]? [(Falla)]?",r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS"
+            lista = lista_datos_folio(folio,fecha,categoria,r"Categoria: ([\w\ ]{1,})[.]? ",r"[0-9]{8}",r"[A-Z0-9]{10} ([\w\ ?]{2,}) \s?PDS"
             ,r"reporta:\ ([\w\ ]{1,}) Motivo",r"E?e?speci?í?fica: ([\w\ ,]{1,})\ ?\s?",r"Motivo: ([\w\ ,/]{1,})\s?\s?Representante")
             lista = tuple(lista)
             return lista

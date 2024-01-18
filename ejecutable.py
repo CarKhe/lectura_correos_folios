@@ -3,12 +3,16 @@ from dotenv import load_dotenv
 import os
 from controlador import Controlador
 
-load_dotenv()
+class Main(Controlador):
+    def __init__(self):
+        super().__init__()
+        load_dotenv()
+        # Datos del usuario
+        username = os.getenv("USER")
+        password = os.getenv("PASSWORD")
+        userfrom = os.getenv("USERFROM")
+        datos = revisar_correo(username, password,userfrom)
+        self.ordenar_datos(datos)  
 
-# Datos del usuario
-username = os.getenv("USER")
-password = os.getenv("PASSWORD")
-userfrom = os.getenv("USERFROM")
 
-datos = revisar_correo(username, password,userfrom)
-Controlador.ordenar_datos(datos)
+Main()   
