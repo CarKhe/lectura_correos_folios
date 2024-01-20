@@ -9,7 +9,7 @@ from datos import *
 def revisar_correo(username, password,correo_enviado):
     datos_completos = []
     # Crear conexión
-    imap = imaplib.IMAP4_SSL("imap.gmail.com")
+    imap = imaplib.IMAP4_SSL("outlook.office365.com")
     # iniciar sesión
     imap.login(username, password)
     status, mensajes = imap.select("INBOX")
@@ -30,10 +30,6 @@ def revisar_correo(username, password,correo_enviado):
                 # decodificar el contenido
                 subject = decode_header(mensaje["Subject"])[0][0]
                 fecha = decode_header(mensaje["date"])[0][0]
-                if isinstance(subject, bytes):
-                    # convertir a string
-                    subject = subject.decode()
-                # de donde viene el correo
                 from_ = mensaje.get("From")
                 res = folio_abierto_cerrado(subject)
                 correo_deseado  = confirmar_correo(from_)
@@ -51,6 +47,7 @@ def revisar_correo(username, password,correo_enviado):
                                 pass
                             if content_type == "text/plain" and "attachment" not in content_disposition:
                                 # Mostrar el cuerpo del correo
+                                
                                 datos = mostrar_info_folio(body,res,fecha)
                                 datos_completos.append(datos)
                     else:
@@ -65,5 +62,3 @@ def revisar_correo(username, password,correo_enviado):
     imap.close()
     imap.logout()
     return datos_completos 
-
-
